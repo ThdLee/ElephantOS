@@ -114,7 +114,7 @@ static void exception_init(void) {	// 完成一般中断处理函数注册及异
 }
 
 /* 开中断并返回开中断前的状态 */
-enum intr_staus intr_enable() {
+enum intr_status intr_enable() {
 	enum intr_status old_status;
 	if (INTR_ON == intr_get_status()) {
 		old_status = INTR_ON;

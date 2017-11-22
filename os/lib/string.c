@@ -2,6 +2,8 @@
 #include "global.h"
 #include "debug.h"
 
+#define NULL 0
+
 void memset(void* dst_, uint8_t value, uint32_t size) {
 	ASSERT(dst_ != NULL);
 	uint8_t* dst = (uint8_t*)dst_;
@@ -49,7 +51,7 @@ int8_t strcmp(const char* a, const char* b) {
 	ASSERT(a != NULL&& b != NULL);
 	while(*a != 0 && *a == *b) {
 		a++;
-		b++:
+		b++;
 	}
 	return *a < *b ? -1 : *a > *b;
 }
@@ -94,7 +96,7 @@ uint32_t strchrs(const char* str, uint8_t ch) {
 		if (*p == ch) {
 			ch_cnt++;
 		}
-		p++:
+		p++;
 	}
 	return ch_cnt;
 }
