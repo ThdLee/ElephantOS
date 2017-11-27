@@ -11,10 +11,10 @@ void bitmap_init(struct bitmap* btmp) {
 }
 
 // 判断bit_idx位是否为1，为1则返回1，否则返回0
-int bitmap_scan_test(struct bitmap* btmp, uint32_t bit_idx) {
+bool bitmap_scan_test(struct bitmap* btmp, uint32_t bit_idx) {
 	uint32_t byte_idx = bit_idx / 8;
 	uint32_t bit_odd = bit_idx % 8;
-	return (btmp->bits[byte_idx] & (BITMAP_MASK << bit_odd)) != 0;
+	return (btmp->bits[byte_idx] & (BITMAP_MASK << bit_odd));
 }
 
 // 在位图中申请连续cnt个位，成功则返回其起始位置下标，失败返回-1

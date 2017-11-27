@@ -5,8 +5,6 @@
 #include "bitmap.h"
 #include "string.h"
 
-#define PG_SIZE 4096
-
 /*
  * 因为0xc009f000是内核主线程栈顶，0xc009e00是内核主线程pcb
  * 一个页框大小的位图可鸟事128M内存，位图位置安排在地址0xc009a000，
@@ -53,14 +51,14 @@ static void* vaddr_get(enum pool_flags pf, uint32_t pg_cnt) {
 
 // 得到虚拟地址vaddr对应的pte指针
 uint32_t* pte_ptr(uint32_t vaddr) {
-	uint32_t* pte = (uint32_t*)(0xffc00000 + ((vaddr & 0xffc00000) >> 10) + PTE_IDX(vaddr) << 2);
+	uint32_t* pte = (uint32_t*)(0xffc00000 + ((vaddr & 0xffc00000) >> 10) + (PTE_IDX(vaddr) << 2));
 	return pte;
 }
 
 
 // 得到虚拟地址vaddr对应的pde的指针
 uint32_t* pde_ptr(uint32_t vaddr) {
-	uint32_t* pde = (uint32_t*)((0xfffff000) + PDE_IDX(vaddr) << 2);
+	uint32_t* pde = (uint32_t*)((0xfffff000) + (PDE_IDX(vaddr) << 2));
 	return pde;
 }
 
