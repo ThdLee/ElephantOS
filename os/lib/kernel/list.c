@@ -20,11 +20,11 @@ void list_insert_before(struct list_elem* before, struct list_elem* elem) {
 }
 
 void list_push(struct list* plist, struct list_elem* elem) {
-	list_insert_before(plist->head.next, elem)
+	list_insert_before(plist->head.next, elem);
 }
 
 void list_append(struct list* plist, struct list_elem* elem) {
-	list_insert_before(plist->tail, elem);
+	list_insert_before(&plist->tail, elem);
 }
 
 void list_remove(struct list_elem* elem) {
@@ -61,7 +61,7 @@ struct list_elem* list_traversal(struct list* plist, function func, int arg) {
 	struct list_elem* elem = plist->head.next;
 
 	if (list_empty(plist)) {
-		return NULL:
+		return NULL;
 	}
 
 	while (elem != &plist->tail) {
@@ -84,5 +84,5 @@ uint32_t list_len(struct list* plist) {
 }
 
 bool list_empty(struct list* plist) {
-	return plist->head.next == &plist.tail;
+	return plist->head.next == &plist->tail;
 }

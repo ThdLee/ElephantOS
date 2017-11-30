@@ -1,6 +1,10 @@
 #ifndef __THREAD_THREAD_H
 #define __THREAD_THREAD_H
 #include "stdint.h"
+#include "list.h"
+
+#define MAGIC_VALUE 0x12345678
+
 
 // 自定义通用函数类型
 typedef void thread_func(void*);
@@ -73,13 +77,28 @@ struct thread_stack {
 struct task_struct {
  	uint32_t* self_kstack;	// 各内核线程都用自己的内核栈
  	enum task_status status;
- 	uint8_t priority;	// 线程优先级
  	char name[16];
+ 	uint8_t priority;	// 线程优先级
+ 	uint8_t ticks;		// 每次在处理器上执行的时间嘀嗒数
+
+ 	// 此任务自运行后总共占用的嘀嗒数
+ 	uint32_t elapsed_ticks;
+
+ 	// 线程在一般队列中的节点
+ 	struct list_elem general_tag;
+
+ 	// 线程在线程队列thread_all_list中的节点
+ 	struct list_elem all_list_tag;
+
+ 	uint32_t* pgdir;		// 进程自己页表的虚拟地址
+
  	uint32_t stack_magic;	// 边界标记
 };
 
 void thread_create(struct task_struct* pthread, thread_func function, void* func_arg);
 void init_thread(struct task_struct* pthread, char* name, int prio);
 struct task_struct* thread_start(char* name, int prio, thread_func function, void* func_arg);
-
+struct task_struct* running_thread(void);
+void schedule(void);
+void thread_init(void);
 #endif

@@ -79,7 +79,7 @@ char* strrchr(const char* str, const uint32_t ch) {
 }
 
 char* strcat(char* dst_, const char* src_) {
-	ASSERT(dst_ != NULL && str_ != NULL);
+	ASSERT(dst_ != NULL && src_ != NULL);
 	char* str = dst_;
 	while (*str++);
 	--str;
