@@ -118,6 +118,33 @@ void schedule() {
 	switch_to(cur, next);
 }
 
+// 当前线程将自己阻塞
+void thread_block(enum task_struct status) {
+	ASSERT(status == TASK_BLOCKED || status == TASK_WAITING || status == TASK_HANGING);
+	enum intr_status old_status = intr_disable();
+	struct task_struct* cur_thread = running_thread();
+	cur_thread->status = status;	// 重置状态
+	schedule();
+	// 待当前线程被解除阻塞后才继续运行下面的代码
+	intr_set_status(old_status);
+}
+
+// 将pthread解除阻塞
+void thread_unblock(struct task_struct* pthread) {
+	enum intr_status old_status = intr_disable();
+	ASSERT(pthread->status == TASK_BLOCKED || pthread->status == TASK_WAITING || pthread-> TASK_HANGING);
+	if (pthread->status != TASK_READY) {
+		bool flag = elem_find(&thread_ready_list, &pthread->general_tag);
+		ASSERT(!flag);
+		if (flag) {
+			PANIC("thread_unblock: blocked thread in ready_list\n");
+		}
+		list_push(&thread_ready_list, &pthread->general_tag);	// 放到队列最前面，使其尽快得到调度
+		pthread->status = TASK_READY;
+	}
+	intr_set_status(old_status);
+}
+
 // 初始化线程环境
 void thread_init() {
 	put_str("thread_init start\n");

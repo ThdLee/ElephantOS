@@ -89,7 +89,8 @@ static void page_table_add(void* _vaddr, void* _page_phyaddr) {
 		if (!(*pte & 0x00000001)) {	// 只要是创建页表，pte就应该不存在
 			*pte = (page_phyaddr | PG_US_U | PG_RW_W | PG_P_1);
 		} else {
-
+			PANIC("pte repeat");
+			*pte = (page_phyaddr | PG_US_U | PG_RW_W | PG_P_1);
 		}
 	} else { // 页目录项不存在，所以要先创建页目录再创建页表项
 		// 页表中用到的页框一律存内核空间
