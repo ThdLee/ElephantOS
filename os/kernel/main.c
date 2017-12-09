@@ -2,6 +2,7 @@
 #include "init.h"
 #include "thread.h"
 #include "interrupt.h"
+#include "console.h"
 
 void kernel_func_a(void*);
 void kernel_func_b(void*);
@@ -15,7 +16,7 @@ int main(void) {
 
     intr_enable();  // 打开中断，使时钟起作用
 	while(1) {
-		put_str("Main ");
+		console_put_str("Main ");
 	}
 	return 0;
 }
@@ -23,13 +24,13 @@ int main(void) {
 void kernel_func_a(void* arg) {
 	char* para = arg;
 	while (1) {
-		put_str(para);
+		console_put_str(para);
 	}
 }
 
 void kernel_func_b(void* arg) {
 	char* para = arg;
 	while (1) {
-		put_str(para);
+		console_put_str(para);
 	}
 }

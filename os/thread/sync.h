@@ -8,7 +8,7 @@
 struct semaphore {
 	uint8_t value;
 	struct list waiters;
-}
+};
 
 // 锁结构
 struct lock {
