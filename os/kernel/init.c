@@ -14,4 +14,5 @@ void init_all() {
 	thread_init();	
 	timer_init(); // 初始化PIT
 	console_init(); // 控制台初始化追好放在开中断前
+	keyboard_init(); // 键盘初始化
 }
