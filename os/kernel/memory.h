@@ -3,7 +3,6 @@
 #include "stdint.h"
 #include "bitmap.h"
 
-#define PG_SIZE 4096
 
 enum pool_flags {
 	PF_KERNEL = 1,	// 内核存储池
