@@ -5,6 +5,7 @@
 #include "memory.h"
 #include "thread.h"
 #include "console.h"
+#include "keyboard.h"
 #include "tss.h"
 
 /* 负责初始化所有模块 */
