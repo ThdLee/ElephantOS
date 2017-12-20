@@ -6,12 +6,12 @@
 #include "process.h"
 #include "syscall-init.h"
 #include "syscall.h"
+#include "stdio.h"
 
 void kernel_func_a(void*);
 void kernel_func_b(void*);
 void user_prog_a(void);
 void user_prog_b(void);
-int prog_a_pid = 0, prog_b_pid = 0;
 
 int main(void) {
 	put_str("I am kernel\n");
@@ -34,9 +34,6 @@ void kernel_func_a(void* arg) {
 	char* para = arg;
   console_put_str(" thread_a_pid:0x");
   console_put_int(sys_getpid());
-  console_put_char('\n');
-  console_put_str(" prog_a_pid:0x");
-	console_put_int(prog_a_pid);
 	console_put_char('\n');
   while(1);
 }
@@ -46,18 +43,18 @@ void kernel_func_b(void* arg) {
   console_put_str(" thread_b_pid:0x");
   console_put_int(sys_getpid());
   console_put_char('\n');
-  console_put_str(" prog_b_pid:0x");
-  console_put_int(prog_b_pid);
   console_put_char('\n');
   while(1);
 }
 
 void user_prog_a(void) {
-	prog_a_pid = getpid();
-	while(1);
+	char* name = "user_prog_a";
+  printf(" I am %s, my pid:%d%c", name, getpid(),'\n');
+  while(1);
 }
 
 void user_prog_b(void) {
-	prog_b_pid = getpid();
-	while(1);
+	char* name = "user_prog_b";
+  printf(" I am %s, my pid:%d%c", name, getpid(), '\n');
+  while(1);
 }
