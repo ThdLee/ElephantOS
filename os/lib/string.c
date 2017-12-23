@@ -23,7 +23,7 @@ char* itoa(uint32_t n, char* str, uint8_t radix) {
 		*p++ = digit[n % radix];
 		n /= radix;
 	}
-	*p = 0
+	*p = 0;
 	for (--p; head < p; ++head, --p) {
 		char temp = *head;
 		*p = temp;

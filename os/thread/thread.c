@@ -126,7 +126,7 @@ void schedule() {
 	thread_tag = NULL;
 	// 将就绪队列中的第一个线程弹出，准备将其在cpu上运行
 	thread_tag = list_pop(&thread_ready_list);
-	struct task_struct* next = elem_to_entry(struct task_struct, general_tag, thread_tag);
+	struct task_struct* next = elem2entry(struct task_struct, general_tag, thread_tag);
 	next->status = TASK_RUNNING;
 
 	// 激活任务页表等

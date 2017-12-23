@@ -97,6 +97,8 @@ struct task_struct {
  	uint32_t* pgdir;		// 进程自己页表的虚拟地址
 
  	struct virtual_addr userprog_vaddr;	// 用户进程的虚拟地址
+ 	struct mem_block_desc u_block_desc[DESC_CNT];	// 用户进程内存块描述
+
  	uint32_t stack_magic;	// 边界标记
 };
 
