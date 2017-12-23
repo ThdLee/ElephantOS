@@ -2,34 +2,6 @@
 #include "global.h"
 #include "debug.h"
 
-char* itoa(uint32_t n, char* str, uint8_t radix) {
-	char digit[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-	char* p = str;
-	char* head = str;
-	if (!p || radix < 2 || radix > 36)
-		return p;
-	if (radix != 10 && n < 0)
-		return p;
-	if (n == 0) {
-		*p++ = '0';
-		*p = 0;
-		return p;
-	}
-	if (radix == 10 && n < 0) {
-		*p++ = '-';
-		n = -n;
-	}
-	while (n) {
-		*p++ = digit[n % radix];
-		n /= radix;
-	}
-	*p = 0;
-	for (--p; head < p; ++head, --p) {
-		char temp = *head;
-		*p = temp;
-	}
-	return str;
-}
 
 
 void memset(void* dst_, uint8_t value, uint32_t size) {
