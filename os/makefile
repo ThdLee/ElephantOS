@@ -103,7 +103,7 @@ $(BUILD_DIR)/syscall-init.o: userprog/syscall-init.c userprog/syscall-init.h \
 	
 $(BUILD_DIR)/stdio.o: lib/stdio.c lib/stdio.h lib/stdint.h kernel/interrupt.h \
     	lib/stdint.h kernel/global.h lib/string.h lib/user/syscall.h lib/kernel/print.h
-	$(CC) $(CFLAGS) $< -o $@
+	$(CC) $(CFLAGS) -fno-stack-protector  $< -o $@
 
 ########### 汇编代码编译 ###########
 $(BUILD_DIR)/kernel.o: kernel/kernel.S
