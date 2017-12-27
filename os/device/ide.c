@@ -210,7 +210,7 @@ void ide_write(struct disk* hd, uint32_t lba, void* buf, uint32_t sec_cnt) {
 		select_sector(hd, lba + secs_done, secs_op);
 
 		// 3 执行的命令写入reg_cmd寄存器
-		cmd_out(hd->my_channel, CMD_READ_SECTOR);	// 准备开始写数据
+		cmd_out(hd->my_channel, CMD_WRITE_SECTOR);	// 准备开始写数据
 
 		// 4 检测硬盘状态是否可读
 		if (!busy_wait(hd)) {	// 若失败
