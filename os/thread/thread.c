@@ -83,6 +83,17 @@ void init_thread(struct task_struct* pthread, char* name, int prio) {
 	pthread->elapsed_ticks = 0;
 	pthread->pgdir = NULL;
 
+	// 预留标准输入输出，其余全部置-1
+	uint8_t fd_idx = 0;
+	while (fd_idx < MAX_FILES_OPEN_PER_PROC) {
+		if (fd_idx < 3) {
+			pthread->fd_table[fd_idx] = fd_idx;
+		} else {
+			pthread->fd_table[fd_idx] = -1;
+		}
+		fd_idx++;
+	} 
+
 	pthread->stack_magic = MAGIC_VALUE;
 }
 

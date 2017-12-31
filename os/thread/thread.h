@@ -7,6 +7,7 @@
 
 #define MAGIC_VALUE 0x12345678
 
+#define MAX_FILES_OPEN_PER_PROC 8
 
 // 自定义通用函数类型
 typedef void thread_func(void*);
@@ -87,6 +88,8 @@ struct task_struct {
 
  	// 此任务自运行后总共占用的嘀嗒数
  	uint32_t elapsed_ticks;
+
+ 	int32_t fd_table[MAX_FILES_OPEN_PER_PROC];	// 文件描述符数组
 
  	// 线程在一般队列中的节点
  	struct list_elem general_tag;
