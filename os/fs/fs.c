@@ -331,11 +331,54 @@ int32_t sys_open(const char* pathname, uint8_t flags) {
 			dir_close(searched_record.parent_dir);
 			// 其余为打开文件
 			break;
+		default:
+			fd = file_open(inode_no, flags);
 	}
 
 	// 此fd是指任务pcb->fd_table数组中的元素下标，并不是指全局file_table下标
 	return fd;
 }
+
+// 将文件描述符转化为文件表的下标
+static uint32_t fd_local2global(uint32_t local_fd) {
+	struct task_struct* cur = running_thread();
+	int32_t global_fd = cur->fd_table[local_fd];
+	ASSERT(global_fd >= 0 && global_fd < MAX_FILE_OPEN);
+	return (uint32_t)global_fd;
+}
+
+// 关闭文件描述符fd指向的文件，成功返回0，否则返回-1
+int32_t sys_close(int32_t fd) {
+	int32_t ret = -1;
+	if (fd > 2) {
+		uint32_t _fd = fd_local2global(fd);
+		ret = file_close(&file_table[_fd]);
+		running_thread()->fd_table[fd] = -1;	// 使该文件描述符位可用
+	}
+}
+
+// 将buf中连续count个字节写入文件描述符fd，成功则返回写入的字节数，失败则返回-1
+int32_t sys_write(int32_t fd, const void* buf, uint32_t count) {
+	if (fd < 0) {
+		printk("sys_write: fd error\n");
+		return -1;
+	}
+	if (fd == stdout_no) {
+		char tmp_buf[1024] = {0};
+		memcpy(tmp_buf, buf, count);
+		console_put_str(tmp_buf);
+		return count;
+	}
+	uint32_t _fd = fd_local2global(fd);
+	struct file* wr_file = &file_table[_fd];
+	if (wr_file->fd_flag & O_WRONLY || wr_file->fd_flag & O_RDWR) {
+		uint32_t bytes_written = file_write(wr_file, buf, count);
+		return bytes_written;
+	} else {
+		printk("sys_write: not allowed to write file without flag O_RDWR or O_WRONLY\n");
+		return -1;
+	}
+} 
 
 // 在磁盘上搜索文件系统，若没有则格式化分区创建文件系统
 void filesys_init() {
