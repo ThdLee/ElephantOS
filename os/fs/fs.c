@@ -380,6 +380,99 @@ int32_t sys_write(int32_t fd, const void* buf, uint32_t count) {
 	}
 } 
 
+// 从文件描述符fd指向的文件中读取count个字节到buf，若成功则返回读出的字节数，到文件尾则返回-1
+int32_t sys_read(int32_t fd, void* buf, uint32_t count) {
+	if (fd < 0) {
+		printk("sys_read: fd error\n");
+		return -1;
+	}
+	ASSERT(buf != NULL);
+	uint32_t _fd = fd_local2global(fd);
+	return file_read(&file_table[_fd], buf, count);
+}
+
+// 重置用于文件读写操作的偏移指针，成功时返回新的偏移量，出错时返回-1
+int32_t sys_lseek(int32_t fd, int32_t offset, uint8_t whence) {
+	if (fd < 0) {
+		printk("sys_lseek: fd error\n");
+		return -1;
+	}
+	ASSERT(whence > 0 && whence < 4);
+	uint32_t _fd = fd_local2global(fd);
+	struct file* pf = &file_table[_fd];
+	int32_t new_pos = 0;	// 新的偏移量必须位于文件大小之内
+	int32_t file_size = (int32_t)pf->fd_inode->i_size;
+	switch (whence) {
+		// SEEK_SET 新的读写位置是相对于文件开头再增加offset个位移量
+		case SEEK_SET:
+			new_pos = offset;
+			break;
+		// SEEK_CUR 新的读写位置是相对于文件尺寸再增加offset个位移量
+		case SEEK_CUR:
+			new_pos = (int32_t)pf->fd_pos + offset;
+			break;
+		// SEEK_END 新的读写位置是相对于文件尺寸再增加offset个位移量
+		case SEEK_END:	// 此情况下，offset应该为负值
+			new_pos = file_size + offset;
+			break;
+	}
+	if (new_pos < 0 || new_pos > (file_size -1)) {
+		return - 1;
+	}
+	pf->fd_pos = new_pos;
+	return pf->fd_pos;
+}
+
+// 删除文件，成功返回0，失败返回-1
+int32_t sys_unlink(const char* pathname) {
+	ASSERT(strlen(pathname) < MAX_PATH_LEN);
+
+	// 先检查待删除的文件是否存在
+	struct path_search_record searched_record;
+	memset(&searched_record, 0, sizeof(struct path_search_record));
+	int inode_no = search_file(pathname, &searched_record);
+	ASSERT(inode_no != 0);
+	if (inode_no == -1) {
+		printk("file %s not found!\n", pathname);
+		dir_close(searched_record.parent_dir);
+	}
+	if (searched_record.file_type == FT_DIRECTORY) {
+		printk("con't delete a directory with unlink(), use rmdir() to instead\n");
+		dir_close(searched_record.parent_dir);
+		return -1;
+	}
+
+	// 检查是否在已打开文件列表中
+	uint32_t file_idx = 0;
+	while (file_idx < MAX_FILE_OPEN) {
+		if (file_table[file_idx].fd_inode != NULL && (uint32_t)inode_no == file_table[file_idx].fd_inode->i_no) {
+			break;
+		}
+		file_idx++;
+	}
+	if (file_idx < MAX_FILE_OPEN) {
+		dir_close(searched_record.parent_dir);
+		printk("file %s is in use, not allow to delete!\n", pathname);
+		return -1;
+	}
+	ASSERT(file_idx == MAX_FILE_OPEN);
+
+	// 为delete_dir_entry申请缓冲区
+	void* io_buf = sys_malloc(SECTOR_SIZE + SECTOR_SIZE);
+	if (io_buf == NULL) {
+		dir_close(searched_record.parent_dir);
+		printk("sys_unlink: malloc for io_buf failed\n");
+		return -1;
+	}
+
+	struct dir* parent_dir = searched_record.parent_dir;
+	delete_dir_entry(cur_part, parent_dir, inode_no, io_buf);
+	inode_release(cur_part, inode_no);
+	sys_free(io_buf);
+	dir_close(searched_record.parent_dir);
+	return 0;	// 成功删除文件
+}
+
 // 在磁盘上搜索文件系统，若没有则格式化分区创建文件系统
 void filesys_init() {
 	uint8_t channel_no = 0, dev_no, part_idx = 0;
