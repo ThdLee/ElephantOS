@@ -94,6 +94,7 @@ void init_thread(struct task_struct* pthread, char* name, int prio) {
 		fd_idx++;
 	} 
 
+	pthread->cwd_inode_nr = 0;	// 以根目录作为默认工作目录
 	pthread->stack_magic = MAGIC_VALUE;
 }
 
