@@ -722,7 +722,7 @@ static int get_child_dir_name(uint32_t p_inode_nr, uint32_t c_inode_nr, char* pa
 
 /* 把当前工作目录绝对路径写入buf，size是buf的大小，当buf为NULL时，
  * 由操作系统分配存储工作路径的空间并返回地址，失败则返回NULL */
- char* sys_getcwd(char* buf, uint32_t size) {
+char* sys_getcwd(char* buf, uint32_t size) {
  	// 确保buf不为空，若用户进程提供的buf为NULL，系统调用getcwd中要为用户进程通过malloc分配内存
  	ASSERT(buf != NULL);
  	void* io_buf = sys_malloc(SECTOR_SIZE);
@@ -766,7 +766,35 @@ static int get_child_dir_name(uint32_t p_inode_nr, uint32_t c_inode_nr, char* pa
  	}
  	sys_free(io_buf);
  	return buf;
- }
+}
+
+// 在buf中填充文件结构相关信息，成功返回0，失败返回-1
+int32_t sys_stat(const char* path, struct stat* buf) {
+	// 若直接查看根目录'/'
+	if (!strcmp(path, "/") || !strcmp(path, "/.") || !strcmp(path, "/..")) {
+		buf->st_filetype = FT_DIRECTORY;
+		buf->st_ino = 0;
+		buf->st_size = root_dir.inode->i_size;
+		return 0;
+	}
+
+	int32_t ret = -1;	// 默认返回值
+	struct path_search_record searched_record;
+	memset(&searched_record, 0, sizeof(struct path_search_record));
+	int inode_no = search_file(path, &searched_record);
+	if (inode_no != -1) {
+		struct inode* obj_inode = inode_open(cur_part, inode_no);	// 只为了过去文件大小
+		buf->st_size = obj_inode->i_size;
+		inode_close(obj_inode);
+		buf->st_filetype = searched_record.file_type;
+		buf->st_ino = inode_no;
+		ret = 0;
+	} else {
+		printk("sys_stat: %s not found\n", path);
+	}
+	dir_close(searched_record.parent_dir);
+	return ret;
+}
 
 // 更改当前工作目录为绝对路径path，成功则返回0，失败返回-1
 int32_t sys_chdir(const char* path) {
