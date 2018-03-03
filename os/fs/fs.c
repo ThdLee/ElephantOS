@@ -178,7 +178,7 @@ static void partition_format(struct partition* part) {
 }
 
 // 将最上层路径名称解析出来
-static char* path_parse(char* pathname, char* name) {
+char* path_parse(char* pathname, char* name) {
 	if (pathname[0] == '/') {	// 根目录不需要单独解析
 		// 跳过连续出现的'/'
 		while (*(++pathname) == '/');
